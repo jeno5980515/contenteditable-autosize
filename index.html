@@ -1,9 +1,9 @@
 <html>
 	<head>
-		<script src="src/textarea-autosize.js"></script>
+		<script src="src/contenteditable-autosize.js"></script>
 	</head>
     <body>
-    	<textarea id="mytext" width="100" height="30"></textarea>
+    	<div id="mytext" width="100" height="30" style="border-style: solid;" contenteditable="true">Input</div>
 	</body>
     <script>
     	AutoSize.resize("#mytext") ;

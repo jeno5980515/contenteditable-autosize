@@ -15,16 +15,26 @@ var AutoSize = (function(){
 	}
 
 	var setTextEvent = function(text){
-		text.onkeydown = function(){
-			var result = getTextMaxLength(text,getFontFamily(this),getFontSize(this)) ;
-			this.style.width = result.length  + 3 ;
-			this.style.height = getTextHeight(getFontFamily(this),getFontSize(this)) * result.row + 10;
+		text.onkeyup = function(e){
+			if ( e.keyCode === 13) {
+				return false ;
+		    }
+			setTextBorder(this) ;
 		}
-		text.onkeyup = function(){
-			var result = getTextMaxLength(text,getFontFamily(this),getFontSize(this)) ;
-			this.style.width = result.length  + 3 ;
-			this.style.height = getTextHeight(getFontFamily(this),getFontSize(this)) * result.row + 10;
+		text.onkeydown = function(e){
+			if ( e.keyCode === 13) {
+				document.execCommand('insertHTML', false, '<br><br>');
+				setTextBorder(this) ;
+				return false ;
+		    }
+			setTextBorder(this) ;
 		}
+	}
+
+	var setTextBorder = function(text){
+		var result = getTextMaxLength(text,getFontFamily(text),getFontSize(text)) ;
+		text.style.width = (result.length ) + "px" ;
+		text.style.height = (getTextHeight(getFontFamily(text),getFontSize(text)) * result.row + 10) + "px" ;
 	}
 
 	var getFontSize = function(text){
@@ -77,20 +87,16 @@ var AutoSize = (function(){
 
 	var getTextMaxLength = function(text,font,size){
 		var s = "" ;
-		var t = text.value ;
+		var t = (text.innerHTML).replace("&nbsp;",' ') ;
 		var max = 0 ;
 		var row = 0 ;
-		for ( var i = 0 ; i < t.length ; i ++ ){
-			if ( t[i] === "\n" || i === t.length - 1 ){
-				max = Math.max(max,getTextWidth(s,font,size)) ;
-				s = "" ;
-				row ++ ;
-				if ( (t[i] === "\n" || t[i] === "\r" || t[i] === "\r\n"  ) && i === t.length - 1 ){
-					row++ ;
-				}
-			} else {
-				s += t[i] ;
-			}
+		for ( var i = 0 ; t.indexOf("<br>") !== -1 ; i ++ , row = i ){
+			max = Math.max(max,getTextWidth(t.substring(0,t.indexOf("<br>")-1),font,size)) ;
+			t = t.substring(t.indexOf("<br>")+4,t.length) ;
+		}
+		if ( t !== "" ){
+			max = Math.max(max,getTextWidth(t,font,size)) ;
+			row ++ ;
 		}
 		return {row:row,length:max} ;
 	}
